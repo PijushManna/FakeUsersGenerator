@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Fake Users Generator</string>
+    <string name="not_found">Not Found</string>
+</resources>
