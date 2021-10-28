@@ -4,12 +4,14 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
 import com.example.fakeusers.database.FakeUser
 import com.example.fakeusers.localdb.Users
 import com.example.fakeusers.localdb.UsersDao
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
     private var requestQueue: RequestQueue? = null
@@ -22,30 +24,32 @@ class MainViewModel : ViewModel() {
     }
 
     fun fetchData(database:UsersDao) {
-        val request = StringRequest(
-            BASE_URL,
-            {
-                it?.let {
-                    gson.fromJson(it,FakeUser::class.java).also { data ->
-                        data.results?.forEach {
-                            database.insert(
-                                Users(
-                                    name = it.name?.first,
-                                    email = it.email,
-                                    number = it.phone,
-                                    image = it.picture?.thumbnail
-                                )
-                            )
-                        }
+        viewModelScope.launch {
+            val request = StringRequest(
+                BASE_URL,
+                {
+                    it?.let {
+                        gson.fromJson(it, FakeUser::class.java).also { data ->
 
+                            data.results?.forEach {
+                                database.insert(
+                                    Users(
+                                        name = it.name?.first,
+                                        email = it.email,
+                                        number = it.phone,
+                                        image = it.picture?.thumbnail
+                                    )
+                                )
+                            }
+                        }
                     }
+                },
+                {
+                    Log.i("Response", it.toString())
                 }
-            },
-            {
-                Log.i("Response",it.toString())
-            }
-        )
-        requestQueue?.add(request)
+            )
+            requestQueue?.add(request)
+        }
     }
 
     companion object {

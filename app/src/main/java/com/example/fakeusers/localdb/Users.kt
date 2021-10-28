@@ -39,6 +39,7 @@ abstract class UsersDatabase : RoomDatabase(){
                         UsersDatabase::class.java,
                         "users_database_history"
                     ).fallbackToDestructiveMigration()
+                        .allowMainThreadQueries()
                         .build()
                 }
                 return INSTANCE!!
