@@ -67,4 +67,9 @@ dependencies {
 
     //Fragment
     implementation 'androidx.fragment:fragment-ktx:1.3.6'
+
+    //Room Database
+    implementation "androidx.room:room-runtime:$version_room"
+    kapt "androidx.room:room-compiler:$version_room"
+    implementation "androidx.room:room-ktx:$version_room"
 }

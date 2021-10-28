@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
 import com.example.fakeusers.database.FakeUser
+import com.example.fakeusers.localdb.Users
+import com.example.fakeusers.localdb.UsersDao
 import com.google.gson.GsonBuilder
 
 class MainViewModel : ViewModel() {
@@ -15,20 +17,27 @@ class MainViewModel : ViewModel() {
     val newPerson: LiveData<FakeUser> = _newPerson
     private val gson  = GsonBuilder().create()
 
-    init {
-        fetchData()
-    }
     fun setRequestQueue(item: RequestQueue?) {
         requestQueue = item
     }
 
-    fun fetchData() {
+    fun fetchData(database:UsersDao) {
         val request = StringRequest(
             BASE_URL,
             {
                 it?.let {
                     gson.fromJson(it,FakeUser::class.java).also { data ->
-                        _newPerson.value = data
+                        data.results?.forEach {
+                            database.insert(
+                                Users(
+                                    name = it.name?.first,
+                                    email = it.email,
+                                    number = it.phone,
+                                    image = it.picture?.thumbnail
+                                )
+                            )
+                        }
+
                     }
                 }
             },
@@ -40,6 +49,6 @@ class MainViewModel : ViewModel() {
     }
 
     companion object {
-        const val BASE_URL = "https://randomuser.me/api/"
+        const val BASE_URL = "https://randomuser.me/api/?results=100"
     }
 }
